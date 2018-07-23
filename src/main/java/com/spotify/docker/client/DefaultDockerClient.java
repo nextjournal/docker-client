@@ -743,6 +743,26 @@ public class DefaultDockerClient implements DockerClient, Closeable {
     containerAction(containerId, "start");
   }
 
+  @Override
+  public void restoreContainer(final String containerId,
+                               final String checkpointId,
+                               final RestoreContainerParams... params)
+          throws DockerException, InterruptedException {
+    checkNotNull(containerId, "containerId");
+    checkNotNull(checkpointId, "checkpointId");
+
+    log.info("Restoring container with Id: {} from checkpoint: {}", containerId, checkpointId);
+
+    MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
+
+    queryParameters.add("checkpoint", checkpointId);
+    for (final RestoreContainerParams param : params) {
+      queryParameters.add(param.name(), param.value());
+    }
+
+    containerAction(containerId, "start", queryParameters);
+  }
+
   private void containerAction(final String containerId, final String action)
       throws DockerException, InterruptedException {
     containerAction(containerId, action, new MultivaluedHashMap<String, String>());

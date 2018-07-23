@@ -879,6 +879,21 @@ public interface DockerClient extends Closeable {
   void startContainer(String containerId) throws DockerException, InterruptedException;
 
   /**
+   * Restores a checkpointed docker container.
+   *
+   * @param containerId The id of the created container to restore.
+   * @param checkpointId It checkpoint to restore.
+   * @param params Additional parameters for the restore, e.g.
+   *               the checkpoint dir.
+   * @throws ContainerNotFoundException
+   *                              if container is not found (404)
+   * @throws DockerException      if a server error occurred (500)
+   * @throws InterruptedException If the thread is interrupted
+   */
+  void restoreContainer(String containerId, String checkpointId, RestoreContainerParams... params)
+          throws DockerException, InterruptedException;
+
+  /**
    * Stop a docker container by sending a SIGTERM, and following up with a SIGKILL if the container
    * doesn't exit gracefully and in a timely manner.
    *
@@ -2148,6 +2163,34 @@ public interface DockerClient extends Closeable {
       return create("User", user);
     }
   }
+
+
+  /**
+   * Parameters for {@link #restoreContainer(String, String, RestoreContainerParams...)}
+   */
+  class RestoreContainerParams extends Param {
+
+    public RestoreContainerParams(String name, String value) {
+      super(name, value);
+    }
+
+    private static RestoreContainerParams create(final String name, final String value) {
+      return new RestoreContainerParams(name, value);
+    }
+
+    /**
+     * Custom checkpoint storage directory.
+     *
+     * @param checkpointDir The custom checkpoint dir.
+     * @return ExecCreateParam
+     */
+    public static RestoreContainerParams checkpointDir(final String checkpointDir) {
+      return create("checkpoint-dir", checkpointDir);
+    }
+
+  }
+
+
 
 
   /**
