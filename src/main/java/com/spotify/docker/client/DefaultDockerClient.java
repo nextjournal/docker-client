@@ -2324,10 +2324,43 @@ public class DefaultDockerClient implements DockerClient, Closeable {
 
   @Override
   public void checkpointCreate(String containerId,
-                               String checkpoint,
+                               String checkpointId,
                                CreateCheckpointParam... params)
           throws DockerException, InterruptedException {
 
+    checkNotNull(containerId, "containerId");
+    checkNotNull(checkpointId, "checkpointId");
+
+    log.info("Checkpointing container with Id: {} as checkpoint: {}.", containerId, checkpointId);
+
+    try {
+
+      final Map<String, Object> request = new HashMap<>();
+
+      request.put("CheckpointID", checkpointId);
+
+      CreateCheckpointParam checkpointDirParam = CreateCheckpointParam.checkpointDir("");
+      request.put(checkpointDirParam.name(),
+              CreateCheckpointParam.get(checkpointDirParam, params));
+
+      CreateCheckpointParam exitParam = CreateCheckpointParam.leaveRunning(false);
+      request.put(exitParam.name(),
+              Boolean.parseBoolean(CreateCheckpointParam.get(exitParam, params)));
+
+      final WebTarget resource = noTimeoutResource()
+              .path("containers").path(containerId).path("checkpoints");
+
+      request(POST, String.class, resource, resource.request(APPLICATION_JSON_TYPE),
+              Entity.json(request));
+
+    } catch (DockerRequestException e) {
+      switch (e.status()) {
+        case 404:
+          throw new ContainerNotFoundException(containerId, e);
+        default:
+          throw e;
+      }
+    }
   }
 
   @Override

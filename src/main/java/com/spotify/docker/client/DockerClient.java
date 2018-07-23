@@ -2314,13 +2314,13 @@ public interface DockerClient extends Closeable {
     }
 
     /**
-     * Leave container running when checkpointing.
+     * Leave container running after checkpointing.
      *
      * @param leaveRunning Whether to attach the standard input which allows user interaction.
      * @return CreateCheckpointParam
      */
     public static CreateCheckpointParam leaveRunning(final boolean leaveRunning) {
-      return new CreateCheckpointParam("leaveRunning", String.valueOf(leaveRunning));
+      return new CreateCheckpointParam("Exit", String.valueOf(!leaveRunning));
     }
 
     /**
@@ -2330,7 +2330,25 @@ public interface DockerClient extends Closeable {
      * @return CreateCheckpointParam
      */
     public static CreateCheckpointParam checkpointDir(final String checkpointDir) {
-      return new CreateCheckpointParam("leaveRunning", checkpointDir);
+      return new CreateCheckpointParam("CheckpointDir", checkpointDir);
+    }
+
+    /**
+     * Gets the value of the (mandatory) checkpoint param if set, or
+     * the default value from the default param, if not set.
+     * @param defaultParam The checkpoint param containing the default
+     *        value and for which a set value will be returned if set.
+     * @param params The parameters passed to the checkpoint create function.
+     * @return Returns the value if found in params, otherwise the default value.
+     */
+    protected static String get(CreateCheckpointParam defaultParam,
+                                CreateCheckpointParam... params) {
+      for (final Param param : params) {
+        if (defaultParam.name().equals(param.name())) {
+          return param.value();
+        }
+      }
+      return defaultParam.value();
     }
   }
 
@@ -3094,7 +3112,7 @@ public interface DockerClient extends Closeable {
    * @throws InterruptedException If the thread is interrupted
    */
   void checkpointCreate(final String containerId,
-                        String checkpoint,
+                        String checkpointId,
                         CreateCheckpointParam... params)
           throws DockerException, InterruptedException;
 }
