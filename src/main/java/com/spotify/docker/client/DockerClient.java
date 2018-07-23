@@ -2305,6 +2305,36 @@ public interface DockerClient extends Closeable {
   String getHost();
 
   /**
+   * Parameters for {@link #checkpointCreate(String, String, CreateCheckpointParam...)}
+   */
+  class CreateCheckpointParam extends Param {
+
+    CreateCheckpointParam(String name, String value) {
+      super(name, value);
+    }
+
+    /**
+     * Leave container running when checkpointing.
+     *
+     * @param leaveRunning Whether to attach the standard input which allows user interaction.
+     * @return CreateCheckpointParam
+     */
+    public static CreateCheckpointParam leaveRunning(final boolean leaveRunning) {
+      return new CreateCheckpointParam("leaveRunning", String.valueOf(leaveRunning));
+    }
+
+    /**
+     * Directory to save the checkpoint in.
+     *
+     * @param checkpointDir Whether to attach the standard input which allows user interaction.
+     * @return CreateCheckpointParam
+     */
+    public static CreateCheckpointParam checkpointDir(final String checkpointDir) {
+      return new CreateCheckpointParam("leaveRunning", checkpointDir);
+    }
+  }
+
+  /**
    * Parameters for {@link #listContainers(ListContainersParam...)}
    */
   class ListContainersParam extends Param {
@@ -3053,4 +3083,18 @@ public interface DockerClient extends Closeable {
    */
   void deleteNode(final String nodeId, final boolean force) throws DockerException,
                                                                    InterruptedException;
+
+  /**
+   * Create a checkpoint from a running container.
+   *
+   * @param containerId The id of the container to checkpoint
+   * @param checkpoint The name of the checkpoint
+   * @param params additional params for the checkpoint creation
+   * @throws DockerException If a server error occurred (500)
+   * @throws InterruptedException If the thread is interrupted
+   */
+  void checkpointCreate(final String containerId,
+                        String checkpoint,
+                        CreateCheckpointParam... params)
+          throws DockerException, InterruptedException;
 }

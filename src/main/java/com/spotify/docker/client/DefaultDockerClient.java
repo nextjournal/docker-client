@@ -2323,6 +2323,14 @@ public class DefaultDockerClient implements DockerClient, Closeable {
   }
 
   @Override
+  public void checkpointCreate(String containerId,
+                               String checkpoint,
+                               CreateCheckpointParam... params)
+          throws DockerException, InterruptedException {
+
+  }
+
+  @Override
   public void execResizeTty(final String execId,
                             final Integer height,
                             final Integer width)
