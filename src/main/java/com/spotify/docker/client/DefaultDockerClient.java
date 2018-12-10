@@ -1646,6 +1646,16 @@ public class DefaultDockerClient implements DockerClient, Closeable {
   public ExecCreation execCreate(final String containerId,
                                  final String[] cmd,
                                  final ExecCreateParam... params)
+          throws DockerException, InterruptedException {
+    return execCreate(containerId, cmd, null, params);
+  }
+
+
+  @Override
+  public ExecCreation execCreate(final String containerId,
+                                 final String[] cmd,
+                                 final String[] env,
+                                 final ExecCreateParam... params)
       throws DockerException, InterruptedException {
     final ContainerInfo containerInfo = inspectContainer(containerId);
     if (!containerInfo.state().running()) {
@@ -1665,6 +1675,13 @@ public class DefaultDockerClient implements DockerClient, Closeable {
         } else {
           generator.writeStringField(param.name(), param.value());
         }
+      }
+      if (env != null) {
+        generator.writeArrayFieldStart("Env");
+        for (final String s : env) {
+          generator.writeString(s);
+        }
+        generator.writeEndArray();
       }
 
       generator.writeArrayFieldStart("Cmd");

@@ -1443,6 +1443,19 @@ public interface DockerClient extends Closeable {
       throws DockerException, InterruptedException;
 
   /**
+   * Sets up an exec instance in a running container id with environment variables.
+   *
+   * @param containerId The id of the container
+   * @param cmd         shell command
+   * @param params      Exec params
+   * @return {@link ExecCreation}
+   * @throws DockerException      if a server error occurred (500)
+   * @throws InterruptedException If the thread is interrupted
+   */
+  ExecCreation execCreate(String containerId, String[] cmd, String[] env, ExecCreateParam... params)
+          throws DockerException, InterruptedException;
+
+  /**
    * Starts a previously set up exec instance id. If detach is true, this API returns after starting
    * the exec command. Otherwise, this API sets up an interactive session with the exec command.
    *
